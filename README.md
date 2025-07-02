@@ -15,14 +15,16 @@ I love building projects, solving problems, and learning new technologies.
 - **Languages:** Python, C  
 - **ML Tools:** scikit-learn, seaborne, Pandas, NumPy  
 - **Other Tools:**  GitHub, Jupyter, Colab
-- 
+
 ---
 
 ## 📂 Projects
 Here are a few of my projects:
-- **Fake News Detection** – Classifies news as real or fake using NLP  
-- **House Price Prediction** – Predicts prices using regression models  
+- **AI influnce detection ** - Visualization and predicts the influnce of ai on a 
 - **Student Performance Analysis** – Visualizes and predicts student scores
+- **online shoping prediction** - Visualization and tells a person will buy the product or not 
+- **Fake News Detection** – Classifies news as real or fake using NLP
+
 
 ---
 
