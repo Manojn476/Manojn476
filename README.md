@@ -29,8 +29,8 @@ Here are a few of my projects:
 ---
 
 ## 📬 Contact
-- 📧 Email: manojkumarn.ad23@bmsce.ac.in 
-- 🔗 [LinkedIn](https://linkedin.com/in/your-link](https://www.linkedin.com/in/manoj-kumar-n-3ab171314/))
+- 📧 Email: mn6224584@gmail.com
+- 🔗 [LinkedIn]([https://linkedin.com/in/your-link](https://www.linkedin.com/in/manoj-kumar-n-3ab171314/)](https://www.linkedin.com/in/manoj-kumar-n-3ab171314/))
 
 
 ⭐ I'm open to internship opportunities in AI/ML/Data Science
