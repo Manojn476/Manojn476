@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Manoj Kumar N — AI & Data Science Engineer</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { display: ['Syne','sans-serif'], body: ['DM Sans','sans-serif'] },
+      colors: {
+        navy:   { 900:'#060d1a', 800:'#0b1628', 700:'#0f1f3d', 600:'#162947' },
+        teal:   { 400:'#2dd4bf', 300:'#5eead4', 200:'#99f6e4' },
+        slate:  { 300:'#cbd5e1', 400:'#94a3b8', 500:'#64748b' },
+        accent: '#38bdf8',
+      },
+      animation: {
+        'fade-up': 'fadeUp 0.7s ease forwards',
+        'float': 'float 6s ease-in-out infinite',
+        'pulse-slow': 'pulse 4s ease-in-out infinite',
+        'spin-slow': 'spin 20s linear infinite',
+      },
+      keyframes: {
+        fadeUp: { from:{opacity:0,transform:'translateY(30px)'}, to:{opacity:1,transform:'translateY(0)'} },
+        float:  { '0%,100%':{transform:'translateY(0)'}, '50%':{transform:'translateY(-14px)'} },
+      }
+    }
+  }
+}
+</script>
+<style>
+  :root {
+    --navy-900: #060d1a;
+    --navy-800: #0b1628;
+    --teal-400: #2dd4bf;
+    --accent: #38bdf8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--navy-900);
+    color: #e2e8f0;
+    overflow-x: hidden;
+  }
+  #canvas-bg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .glass {
+    background: rgba(11,22,40,0.65);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(45,212,191,0.12);
+  }
+  .glass-card {
+    background: rgba(15,31,61,0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(56,189,248,0.10);
+    transition: all 0.4s cubic-bezier(.22,.68,0,1.2);
+  }
+  .glass-card:hover {
+    border-color: rgba(45,212,191,0.35);
+    background: rgba(15,31,61,0.75);
+    transform: translateY(-6px) scale(1.015);
+    box-shadow: 0 20px 60px rgba(45,212,191,0.10), 0 0 0 1px rgba(45,212,191,0.15);
+  }
+  .nav-link {
+    position: relative;
+    color: #94a3b8;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+    text-decoration: none;
+  }
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -3px; left: 0;
+    width: 0; height: 1.5px;
+    background: var(--teal-400);
+    transition: width 0.3s;
+  }
+  .nav-link:hover { color: var(--teal-400); }
+  .nav-link:hover::after { width: 100%; }
+  .hero-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.6rem, 7vw, 5.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+  .gradient-text {
+    background: linear-gradient(135deg, #e2e8f0 0%, #2dd4bf 45%, #38bdf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .glow-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #2dd4bf, #38bdf8);
+    color: #060d1a;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.06em;
+    padding: 0.75rem 2rem;
+    border-radius: 3rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+  }
+  .glow-btn:hover {
+    box-shadow: 0 0 30px rgba(45,212,191,0.45), 0 0 60px rgba(56,189,248,0.2);
+    transform: translateY(-2px);
+  }
+  .outline-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    color: #2dd4bf;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.06em;
+    padding: 0.75rem 2rem;
+    border-radius: 3rem;
+    border: 1.5px solid rgba(45,212,191,0.5);
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+  }
+  .outline-btn:hover {
+    background: rgba(45,212,191,0.08);
+    border-color: #2dd4bf;
+    transform: translateY(-2px);
+  }
+  .section-tag {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #2dd4bf;
+  }
+  .section-heading {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    color: #e2e8f0;
+    line-height: 1.15;
+  }
+  .skill-pill {
+    display: inline-block;
+    background: rgba(45,212,191,0.08);
+    border: 1px solid rgba(45,212,191,0.2);
+    color: #2dd4bf;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 0.3rem 0.85rem;
+    border-radius: 2rem;
+    transition: all 0.25s;
+  }
+  .skill-pill:hover {
+    background: rgba(45,212,191,0.18);
+    border-color: #2dd4bf;
+    transform: scale(1.05);
+  }
+  .timeline-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #2dd4bf;
+    box-shadow: 0 0 12px rgba(45,212,191,0.7);
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+  .timeline-line {
+    width: 1px;
+    background: linear-gradient(to bottom, rgba(45,212,191,0.4), transparent);
+    flex-shrink: 0;
+    margin-left: 4.5px;
+  }
+  .project-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    font-family: 'Syne', sans-serif;
+    letter-spacing: 0.04em;
+    padding: 0.2rem 0.65rem;
+    border-radius: 1rem;
+  }
+  .scroll-reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .scroll-reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.4rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #2dd4bf, #38bdf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--navy-900); }
+  ::-webkit-scrollbar-thumb { background: rgba(45,212,191,0.3); border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(45,212,191,0.6); }
+  .noise-overlay {
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0.025;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .content-wrap { position: relative; z-index: 2; }
+  .cert-card {
+    border-left: 3px solid #2dd4bf;
+    padding-left: 1rem;
+    transition: all 0.3s;
+  }
+  .cert-card:hover { transform: translateX(6px); }
+  .contact-input {
+    width: 100%;
+    background: rgba(15,31,61,0.6);
+    border: 1px solid rgba(56,189,248,0.15);
+    color: #e2e8f0;
+    font-family: 'DM Sans', sans-serif;
+    padding: 0.85rem 1.2rem;
+    border-radius: 0.75rem;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .contact-input:focus { border-color: #2dd4bf; }
+  .contact-input::placeholder { color: #475569; }
+  textarea.contact-input { resize: none; min-height: 130px; }
+</style>
+</head>
+<body>
+
+<!-- Three.js 3D Canvas -->
+<canvas id="canvas-bg"></canvas>
+
+<!-- Noise grain overlay -->
+<div class="noise-overlay"></div>
+
+<!-- ─── NAVBAR ─── -->
+<div class="content-wrap">
+<nav class="glass fixed top-0 left-0 right-0 z-50">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="#hero" class="font-display font-800 text-xl tracking-tight" style="font-family:'Syne',sans-serif;font-weight:800;">
+      <span class="gradient-text">MK</span><span class="text-slate-400 font-light">.</span>
+    </a>
+    <div class="hidden md:flex items-center gap-8">
+      <a href="#about" class="nav-link">About</a>
+      <a href="#skills" class="nav-link">Skills</a>
+      <a href="#projects" class="nav-link">Projects</a>
+      <a href="#experience" class="nav-link">Experience</a>
+      <a href="#certifications" class="nav-link">Certs</a>
+      <a href="#contact" class="nav-link">Contact</a>
+    </div>
+    <a href="mailto:mn6224584@gmail.com" class="glow-btn text-xs px-5 py-2">Hire Me</a>
+  </div>
+</nav>
+
+<!-- ─── HERO ─── -->
+<section id="hero" class="min-h-screen flex items-center justify-center relative overflow-hidden pt-20">
+  <!-- ambient blobs -->
+  <div style="position:absolute;top:15%;left:10%;width:400px;height:400px;background:radial-gradient(circle,rgba(45,212,191,0.06) 0%,transparent 70%);border-radius:50%;animation:float 7s ease-in-out infinite;pointer-events:none;"></div>
+  <div style="position:absolute;bottom:20%;right:8%;width:350px;height:350px;background:radial-gradient(circle,rgba(56,189,248,0.06) 0%,transparent 70%);border-radius:50%;animation:float 9s ease-in-out infinite reverse;pointer-events:none;"></div>
+
+  <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+    <div style="animation: fadeUp 0.9s ease both;">
+      <div class="section-tag mb-5 flex items-center gap-2">
+        <span style="width:32px;height:1px;background:#2dd4bf;display:inline-block;"></span>
+        AI & Data Science Engineer
+      </div>
+      <h1 class="hero-title mb-6">
+        <span class="gradient-text">Manoj</span><br/>
+        <span style="color:#e2e8f0;">Kumar N.</span>
+      </h1>
+      <p class="text-slate-400 text-lg leading-relaxed mb-8 max-w-lg" style="font-weight:300;">
+        Building intelligent systems at the intersection of Machine Learning, Data Engineering, and scalable software. Currently pursuing B.E. in AI & Data Science at BMS College of Engineering.
+      </p>
+      <div class="flex flex-wrap gap-4">
+        <a href="#projects" class="glow-btn">View Projects →</a>
+        <a href="mailto:mn6224584@gmail.com" class="outline-btn">Get In Touch</a>
+      </div>
+      <div class="flex gap-8 mt-12">
+        <div>
+          <div class="stat-num">8.49</div>
+          <div class="text-slate-500 text-sm mt-0.5">CGPA</div>
+        </div>
+        <div style="width:1px;background:rgba(100,116,139,0.3);"></div>
+        <div>
+          <div class="stat-num">3+</div>
+          <div class="text-slate-500 text-sm mt-0.5">Projects</div>
+        </div>
+        <div style="width:1px;background:rgba(100,116,139,0.3);"></div>
+        <div>
+          <div class="stat-num">3</div>
+          <div class="text-slate-500 text-sm mt-0.5">Certifications</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Avatar / decorative ring -->
+    <div class="flex justify-center items-center" style="animation: fadeUp 1.1s ease both;">
+      <div class="relative" style="width:320px;height:320px;">
+        <!-- outer spinning ring -->
+        <div style="position:absolute;inset:-16px;border-radius:50%;border:1px solid rgba(45,212,191,0.15);animation:spin 30s linear infinite;"></div>
+        <div style="position:absolute;inset:-28px;border-radius:50%;border:1px dashed rgba(56,189,248,0.1);animation:spin 20s linear infinite reverse;"></div>
+        <!-- inner glow circle / photo upload -->
+        <div class="glass" id="avatar-circle" style="width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;cursor:pointer;" onclick="document.getElementById('photo-upload').click()" title="Click to upload your photo">
+          <div style="position:absolute;inset:0;background:radial-gradient(circle at 40% 40%,rgba(45,212,191,0.12),transparent 70%);pointer-events:none;"></div>
+          <!-- Photo preview (hidden until uploaded) -->
+          <img id="avatar-img" src="" alt="Manoj Kumar" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;"/>
+          <!-- Initials fallback -->
+          <div id="avatar-initials" style="font-family:'Syne',sans-serif;font-size:5rem;font-weight:800;background:linear-gradient(135deg,#2dd4bf,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;transition:opacity 0.3s;">MK</div>
+          <!-- Upload hover overlay -->
+          <div id="avatar-overlay" style="position:absolute;inset:0;border-radius:50%;background:rgba(6,13,26,0.7);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.4rem;opacity:0;transition:opacity 0.3s;pointer-events:none;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span style="font-family:'Syne',sans-serif;font-size:0.72rem;font-weight:700;color:#2dd4bf;letter-spacing:0.08em;">UPLOAD PHOTO</span>
+          </div>
+        </div>
+        <!-- Hidden file input -->
+        <input type="file" id="photo-upload" accept="image/*" style="display:none;"/>
+        <!-- floating badges -->
+        <div class="glass-card" style="position:absolute;bottom:-10px;left:-20px;padding:0.7rem 1rem;border-radius:0.875rem;">
+          <div style="font-family:'Syne',sans-serif;font-size:0.7rem;color:#2dd4bf;font-weight:700;letter-spacing:0.06em;">ML ENGINEER</div>
+          <div style="font-size:0.75rem;color:#94a3b8;margin-top:1px;">Scikit-learn • Python</div>
+        </div>
+        <div class="glass-card" style="position:absolute;top:-10px;right:-20px;padding:0.7rem 1rem;border-radius:0.875rem;">
+          <div style="font-family:'Syne',sans-serif;font-size:0.7rem;color:#38bdf8;font-weight:700;letter-spacing:0.06em;">DATA SCIENCE</div>
+          <div style="font-size:0.75rem;color:#94a3b8;margin-top:1px;">Power BI • SQL</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- scroll cue -->
+  <div style="position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:0.4rem;opacity:0.4;">
+    <div style="font-family:'Syne',sans-serif;font-size:0.65rem;letter-spacing:0.15em;color:#94a3b8;">SCROLL</div>
+    <div style="width:1px;height:36px;background:linear-gradient(to bottom,#94a3b8,transparent);animation:float 2s ease-in-out infinite;"></div>
+  </div>
+</section>
+
+<!-- ─── ABOUT ─── -->
+<section id="about" class="py-28 scroll-reveal">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="grid md:grid-cols-2 gap-16 items-center">
+      <div>
+        <div class="section-tag mb-4">About Me</div>
+        <h2 class="section-heading mb-6">Turning Data Into<br/><span class="gradient-text">Intelligent Decisions</span></h2>
+        <p class="text-slate-400 leading-relaxed mb-5" style="font-weight:300;">
+          I'm a third-year AI & Data Science engineering student at BMS College of Engineering, Bengaluru, with a strong academic record (CGPA 8.49). My expertise spans the full ML lifecycle — from data ingestion and feature engineering to model deployment and real-time inference systems.
+        </p>
+        <p class="text-slate-400 leading-relaxed mb-8" style="font-weight:300;">
+          I combine rigorous analytical thinking with pragmatic engineering to build production-ready systems. I thrive at the intersection of software engineering and data science, and I'm passionate about building tools that make a tangible impact.
+        </p>
+        <div class="flex flex-wrap gap-3">
+          <a href="https://github.com/Manojn476" target="_blank" class="skill-pill">GitHub ↗</a>
+          <a href="https://www.linkedin.com/in/" target="_blank" class="skill-pill">LinkedIn ↗</a>
+          <a href="https://leetcode.com/" target="_blank" class="skill-pill">LeetCode ↗</a>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="glass-card p-6 rounded-2xl">
+          <div style="font-size:1.8rem;margin-bottom:0.75rem;">🎓</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;color:#e2e8f0;margin-bottom:0.3rem;">Education</div>
+          <div class="text-slate-400 text-sm leading-relaxed" style="font-weight:300;">B.E. AI & Data Science<br/>BMS College, Bengaluru<br/>2023 – 2027</div>
+        </div>
+        <div class="glass-card p-6 rounded-2xl">
+          <div style="font-size:1.8rem;margin-bottom:0.75rem;">🧠</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;color:#e2e8f0;margin-bottom:0.3rem;">Focus Areas</div>
+          <div class="text-slate-400 text-sm leading-relaxed" style="font-weight:300;">Machine Learning<br/>Data Pipelines<br/>Network Analysis</div>
+        </div>
+        <div class="glass-card p-6 rounded-2xl">
+          <div style="font-size:1.8rem;margin-bottom:0.75rem;">⚡</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;color:#e2e8f0;margin-bottom:0.3rem;">Problem Solving</div>
+          <div class="text-slate-400 text-sm leading-relaxed" style="font-weight:300;">Active LeetCode<br/>DSA Practice<br/>Competitive Programming</div>
+        </div>
+        <div class="glass-card p-6 rounded-2xl">
+          <div style="font-size:1.8rem;margin-bottom:0.75rem;">🌐</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;color:#e2e8f0;margin-bottom:0.3rem;">Interests</div>
+          <div class="text-slate-400 text-sm leading-relaxed" style="font-weight:300;">AI Systems<br/>Geospatial Analysis<br/>MLOps & DevOps</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SKILLS ─── -->
+<section id="skills" class="py-28 scroll-reveal" style="background:linear-gradient(180deg,transparent,rgba(11,22,40,0.5),transparent);">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="text-center mb-16">
+      <div class="section-tag mb-4">Technical Arsenal</div>
+      <h2 class="section-heading">Skills & <span class="gradient-text">Technologies</span></h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6">
+
+      <div class="glass-card rounded-2xl p-7">
+        <div class="flex items-center gap-3 mb-5">
+          <div style="width:36px;height:36px;background:rgba(45,212,191,0.12);border-radius:0.6rem;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">💻</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;color:#e2e8f0;">Programming Languages</div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <span class="skill-pill">Python</span>
+          <span class="skill-pill">SQL</span>
+          <span class="skill-pill">C</span>
+          <span class="skill-pill">R</span>
+          <span class="skill-pill">TypeScript</span>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl p-7">
+        <div class="flex items-center gap-3 mb-5">
+          <div style="width:36px;height:36px;background:rgba(45,212,191,0.12);border-radius:0.6rem;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🤖</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;color:#e2e8f0;">Machine Learning</div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <span class="skill-pill">Scikit-learn</span>
+          <span class="skill-pill">Feature Engineering</span>
+          <span class="skill-pill">Model Evaluation</span>
+          <span class="skill-pill">Data Preprocessing</span>
+          <span class="skill-pill">Prompt Engineering</span>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl p-7">
+        <div class="flex items-center gap-3 mb-5">
+          <div style="width:36px;height:36px;background:rgba(45,212,191,0.12);border-radius:0.6rem;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🛠️</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;color:#e2e8f0;">Tools & Platforms</div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <span class="skill-pill">Git</span>
+          <span class="skill-pill">Linux</span>
+          <span class="skill-pill">Streamlit</span>
+          <span class="skill-pill">Power BI</span>
+          <span class="skill-pill">Excel</span>
+          <span class="skill-pill">NetworkX</span>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl p-7">
+        <div class="flex items-center gap-3 mb-5">
+          <div style="width:36px;height:36px;background:rgba(45,212,191,0.12);border-radius:0.6rem;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🗄️</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;color:#e2e8f0;">Data Structures & Algorithms</div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <span class="skill-pill">Arrays & Strings</span>
+          <span class="skill-pill">Linked Lists</span>
+          <span class="skill-pill">Trees & Graphs</span>
+          <span class="skill-pill">Dynamic Programming</span>
+          <span class="skill-pill">Hashing</span>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl p-7">
+        <div class="flex items-center gap-3 mb-5">
+          <div style="width:36px;height:36px;background:rgba(45,212,191,0.12);border-radius:0.6rem;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">📊</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;color:#e2e8f0;">Data Engineering</div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <span class="skill-pill">Data Pipelines</span>
+          <span class="skill-pill">CI/CD</span>
+          <span class="skill-pill">Containerization</span>
+          <span class="skill-pill">Big Data</span>
+          <span class="skill-pill">Geospatial Analysis</span>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl p-7">
+        <div class="flex items-center gap-3 mb-5">
+          <div style="width:36px;height:36px;background:rgba(45,212,191,0.12);border-radius:0.6rem;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🌍</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;color:#e2e8f0;">Soft Skills</div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <span class="skill-pill">Team Collaboration</span>
+          <span class="skill-pill">Rapid Prototyping</span>
+          <span class="skill-pill">Data Storytelling</span>
+          <span class="skill-pill">Cross-functional Communication</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─── PROJECTS ─── -->
+<section id="projects" class="py-28 scroll-reveal">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="text-center mb-16">
+      <div class="section-tag mb-4">Portfolio</div>
+      <h2 class="section-heading">Featured <span class="gradient-text">Projects</span></h2>
+    </div>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- Project 1 -->
+      <div class="glass-card rounded-2xl p-7 flex flex-col">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+          <div style="font-size:2rem;">🛒</div>
+          <div class="flex gap-2">
+            <span class="project-tag" style="background:rgba(45,212,191,0.1);color:#2dd4bf;">ML</span>
+            <span class="project-tag" style="background:rgba(56,189,248,0.1);color:#38bdf8;">Python</span>
+          </div>
+        </div>
+        <h3 style="font-family:'Syne',sans-serif;font-weight:700;color:#e2e8f0;font-size:1.1rem;margin-bottom:0.6rem;">Purchase Intent Prediction System</h3>
+        <p class="text-slate-400 text-sm leading-relaxed mb-5" style="font-weight:300;flex:1;">
+          End-to-end ML pipeline predicting e-commerce purchase intent from behavioral data. Engineered 15+ features, achieving production-grade accuracy with real-time inference and interactive dashboards.
+        </p>
+        <div class="flex flex-wrap gap-1.5 mb-5">
+          <span style="font-size:0.68rem;color:#64748b;font-family:'Syne',sans-serif;font-weight:600;">Scikit-learn</span>
+          <span style="color:#334155;">·</span>
+          <span style="font-size:0.68rem;color:#64748b;font-family:'Syne',sans-serif;font-weight:600;">Streamlit</span>
+          <span style="color:#334155;">·</span>
+          <span style="font-size:0.68rem;color:#64748b;font-family:'Syne',sans-serif;font-weight:600;">JavaScript</span>
+          <span style="color:#334155;">·</span>
+          <span style="font-size:0.68rem;color:#64748b;font-family:'Syne',sans-serif;font-weight:600;">MIT License</span>
+        </div>
+        <a href="https://github.com/Manojn476" target="_blank" class="outline-btn w-full justify-center text-sm py-2">View on GitHub ↗</a>
+      </div>
+
+      <!-- Project 2 -->
+      <div class="glass-card rounded-2xl p-7 flex flex-col">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+          <div style="font-size:2rem;">📚</div>
+          <div class="flex gap-2">
+            <span class="project-tag" style="background:rgba(45,212,191,0.1);color:#2dd4bf;">AI</span>
+            <span class="project-tag" style="background:rgba(250,204,21,0.1);color:#facc15;">Hackathon</span>
+          </div>
+        </div>
+        <h3 style="font-family:'Syne',sans-serif;font-weight:700;color:#e2e8f0;font-size:1.1rem;margin-bottom:0.6rem;">Curriculum Compass — AI Recommender</h3>
+        <p class="text-slate-400 text-sm leading-relaxed mb-5" style="font-weight:300;flex:1;">
+          AI-powered personalized curriculum recommendation engine built in a hackathon setting. Delivered a fully functional prototype under 48-hour time constraints through agile team coordination.
+        </p>
+        <div class="flex flex-wrap gap-1.5 mb-5">
+          <span style="font-size:0.68rem;color:#64748b;font-family:'Syne',sans-serif;font-weight:600;">Python</span>
+          <span style="color:#334155;">·</span>
+          <span style="font-size:0.68rem;color:#64748b;font-family:'Syne',sans-serif;font-weight:600;">Streamlit</span>
+          <span style="color:#334155;">·</span>
+          <span style="font-size:0.68rem;color:#64748b;font-family:'Syne',sans-serif;font-weight:600;">ML</span>
+        </div>
+        <a href="https://github.com/Manojn476" target="_blank" class="outline-btn w-full justify-center text-sm py-2">View on GitHub ↗</a>
+      </div>
+
+      <!-- Project 3 -->
+      <div class="glass-card rounded-2xl p-7 flex flex-col">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+          <div style="font-size:2rem;">🗺️</div>
+          <div class="flex gap-2">
+            <span class="project-tag" style="background:rgba(45,212,191,0.1);color:#2dd4bf;">Network</span>
+            <span class="project-tag" style="background:rgba(167,139,250,0.1);color:#a78bfa;">Spatial</span>
+          </div>
+        </div>
+        <h3 style="font-family:'Syne',sans-serif;font-weight:700;color:#e2e8f0;font-size:1.1rem;margin-bottom:0.6rem;">Amenity Equity & Network Analyzer</h3>
+        <p class="text-slate-400 text-sm leading-relaxed mb-5" style="font-weight:300;flex:1;">
+          Graph-based urban infrastructure analytics platform modeling cities as dual-layer resistance networks. Quantifies service accessibility equity and visualizes infrastructure gaps via interactive geospatial maps.
+        </p>
+        <div class="flex flex-wrap gap-1.5 mb-5">
+          <span style="font-size:0.68rem;color:#64748b;font-family:'Syne',sans-serif;font-weight:600;">NetworkX</span>
+          <span style="color:#334155;">·</span>
+          <span style="font-size:0.68rem;color:#64748b;font-family:'Syne',sans-serif;font-weight:600;">Python</span>
+          <span style="color:#334155;">·</span>
+          <span style="font-size:0.68rem;color:#64748b;font-family:'Syne',sans-serif;font-weight:600;">Geospatial</span>
+          <span style="color:#334155;">·</span>
+          <span style="font-size:0.68rem;color:#64748b;font-family:'Syne',sans-serif;font-weight:600;">Streamlit</span>
+        </div>
+        <a href="https://github.com/Manojn476" target="_blank" class="outline-btn w-full justify-center text-sm py-2">View on GitHub ↗</a>
+      </div>
+
+      <!-- Project 4 -->
+      <div class="glass-card rounded-2xl p-7 flex flex-col">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+          <div style="font-size:2rem;">🚀</div>
+          <div class="flex gap-2">
+            <span class="project-tag" style="background:rgba(45,212,191,0.1);color:#2dd4bf;">DevOps</span>
+            <span class="project-tag" style="background:rgba(56,189,248,0.1);color:#38bdf8;">Big Data</span>
+          </div>
+        </div>
+        <h3 style="font-family:'Syne',sans-serif;font-weight:700;color:#e2e8f0;font-size:1.1rem;margin-bottom:0.6rem;">DevOps for Big Data Workshop</h3>
+        <p class="text-slate-400 text-sm leading-relaxed mb-5" style="font-weight:300;flex:1;">
+          Comprehensive repository of DevOps practices applied to big data workloads — CI/CD pipelines, containerized infrastructure, and automation scripts for scalable data application deployment.
+        </p>
+        <div class="flex flex-wrap gap-1.5 mb-5">
+          <span style="font-size:0.68rem;color:#64748b;font-family:'Syne',sans-serif;font-weight:600;">Python</span>
+          <span style="color:#334155;">·</span>
+          <span style="font-size:0.68rem;color:#64748b;font-family:'Syne',sans-serif;font-weight:600;">CI/CD</span>
+          <span style="color:#334155;">·</span>
+          <span style="font-size:0.68rem;color:#64748b;font-family:'Syne',sans-serif;font-weight:600;">Docker</span>
+        </div>
+        <a href="https://github.com/Manojn476" target="_blank" class="outline-btn w-full justify-center text-sm py-2">View on GitHub ↗</a>
+      </div>
+
+      <!-- Project 5 -->
+      <div class="glass-card rounded-2xl p-7 flex flex-col">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+          <div style="font-size:2rem;">💬</div>
+          <div class="flex gap-2">
+            <span class="project-tag" style="background:rgba(45,212,191,0.1);color:#2dd4bf;">Web</span>
+            <span class="project-tag" style="background:rgba(56,189,248,0.1);color:#38bdf8;">API</span>
+          </div>
+        </div>
+        <h3 style="font-family:'Syne',sans-serif;font-weight:700;color:#e2e8f0;font-size:1.1rem;margin-bottom:0.6rem;">Conversational AI Chatbot</h3>
+        <p class="text-slate-400 text-sm leading-relaxed mb-5" style="font-weight:300;flex:1;">
+          Web-based intelligent chatbot with REST API integration enabling real-time conversational responses. Implements clean frontend UX and modular API architecture for scalability.
+        </p>
+        <div class="flex flex-wrap gap-1.5 mb-5">
+          <span style="font-size:0.68rem;color:#64748b;font-family:'Syne',sans-serif;font-weight:600;">HTML</span>
+          <span style="color:#334155;">·</span>
+          <span style="font-size:0.68rem;color:#64748b;font-family:'Syne',sans-serif;font-weight:600;">JavaScript</span>
+          <span style="color:#334155;">·</span>
+          <span style="font-size:0.68rem;color:#64748b;font-family:'Syne',sans-serif;font-weight:600;">REST API</span>
+        </div>
+        <a href="https://github.com/Manojn476" target="_blank" class="outline-btn w-full justify-center text-sm py-2">View on GitHub ↗</a>
+      </div>
+
+      <!-- Project 6 -->
+      <div class="glass-card rounded-2xl p-7 flex flex-col">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+          <div style="font-size:2rem;">📡</div>
+          <div class="flex gap-2">
+            <span class="project-tag" style="background:rgba(167,139,250,0.1);color:#a78bfa;">AI</span>
+            <span class="project-tag" style="background:rgba(45,212,191,0.1);color:#2dd4bf;">Classifier</span>
+          </div>
+        </div>
+        <h3 style="font-family:'Syne',sans-serif;font-weight:700;color:#e2e8f0;font-size:1.1rem;margin-bottom:0.6rem;">AI-Powered Content Classifier</h3>
+        <p class="text-slate-400 text-sm leading-relaxed mb-5" style="font-weight:300;flex:1;">
+          ML-driven classification system for automated content analysis and categorization. Leverages NLP techniques and ensemble models to identify and label content patterns at scale.
+        </p>
+        <div class="flex flex-wrap gap-1.5 mb-5">
+          <span style="font-size:0.68rem;color:#64748b;font-family:'Syne',sans-serif;font-weight:600;">Python</span>
+          <span style="color:#334155;">·</span>
+          <span style="font-size:0.68rem;color:#64748b;font-family:'Syne',sans-serif;font-weight:600;">ML</span>
+          <span style="color:#334155;">·</span>
+          <span style="font-size:0.68rem;color:#64748b;font-family:'Syne',sans-serif;font-weight:600;">NLP</span>
+        </div>
+        <a href="https://github.com/Manojn476" target="_blank" class="outline-btn w-full justify-center text-sm py-2">View on GitHub ↗</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─── EXPERIENCE ─── -->
+<section id="experience" class="py-28 scroll-reveal" style="background:linear-gradient(180deg,transparent,rgba(11,22,40,0.5),transparent);">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="grid md:grid-cols-2 gap-16 items-start">
+      <div>
+        <div class="section-tag mb-4">Experience</div>
+        <h2 class="section-heading mb-10">Work <span class="gradient-text">History</span></h2>
+
+        <div class="flex gap-4">
+          <div class="flex flex-col items-center">
+            <div class="timeline-dot"></div>
+            <div class="timeline-line" style="height:120px;"></div>
+          </div>
+          <div class="glass-card rounded-2xl p-6 mb-6 flex-1">
+            <div class="flex items-start justify-between mb-2">
+              <div>
+                <div style="font-family:'Syne',sans-serif;font-weight:700;color:#e2e8f0;">Data Visualization Trainee</div>
+                <div style="color:#2dd4bf;font-size:0.85rem;font-weight:500;margin-top:2px;">Early-Stage Remote Internship</div>
+              </div>
+              <span class="project-tag" style="background:rgba(45,212,191,0.1);color:#2dd4bf;font-size:0.68rem;white-space:nowrap;">2024</span>
+            </div>
+            <ul class="text-slate-400 text-sm leading-relaxed space-y-1.5 mt-3" style="font-weight:300;">
+              <li>→ Executed end-to-end data cleaning and exploratory analysis on real-world datasets, improving downstream model quality by reducing noise by 30%.</li>
+              <li>→ Designed executive-facing data visualizations using Microsoft Excel and Power BI, directly informing strategic product decisions.</li>
+              <li>→ Developed hands-on proficiency in data-driven decision frameworks and quantitative presentation techniques.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-tag mb-4">Education</div>
+        <h2 class="section-heading mb-10">Academic <span class="gradient-text">Background</span></h2>
+
+        <div class="flex gap-4">
+          <div class="flex flex-col items-center">
+            <div class="timeline-dot"></div>
+            <div class="timeline-line" style="height:120px;"></div>
+          </div>
+          <div class="glass-card rounded-2xl p-6 mb-6 flex-1">
+            <div class="flex items-start justify-between mb-2">
+              <div>
+                <div style="font-family:'Syne',sans-serif;font-weight:700;color:#e2e8f0;">B.E. — Artificial Intelligence & Data Science</div>
+                <div style="color:#2dd4bf;font-size:0.85rem;font-weight:500;margin-top:2px;">BMS College of Engineering, Bengaluru</div>
+              </div>
+              <span class="project-tag" style="background:rgba(45,212,191,0.1);color:#2dd4bf;font-size:0.68rem;white-space:nowrap;">2023–2027</span>
+            </div>
+            <div class="mt-3">
+              <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
+                <span class="stat-num" style="font-size:1.6rem;">8.49</span>
+                <span class="text-slate-400 text-sm">CGPA (till 5th semester)</span>
+              </div>
+              <div class="text-slate-400 text-sm leading-relaxed" style="font-weight:300;">
+                Coursework: Machine Learning, Data Structures & Algorithms, Database Systems, Statistical Analysis, Network Theory, and Geospatial Computing.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CERTIFICATIONS ─── -->
+<section id="certifications" class="py-28 scroll-reveal">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="text-center mb-16">
+      <div class="section-tag mb-4">Credentials</div>
+      <h2 class="section-heading">Certifications & <span class="gradient-text">Learning</span></h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6">
+
+      <div class="glass-card rounded-2xl p-7">
+        <div class="cert-card">
+          <div style="font-family:'Syne',sans-serif;font-size:0.7rem;letter-spacing:0.12em;color:#2dd4bf;font-weight:700;margin-bottom:0.5rem;">INFOSYS SPRINGBOARD</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;color:#e2e8f0;margin-bottom:0.4rem;">Artificial Intelligence for All</div>
+          <div class="text-slate-400 text-sm" style="font-weight:300;">Comprehensive AI literacy certification covering ML fundamentals, ethical AI, and real-world applications.</div>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl p-7">
+        <div class="cert-card">
+          <div style="font-family:'Syne',sans-serif;font-size:0.7rem;letter-spacing:0.12em;color:#38bdf8;font-weight:700;margin-bottom:0.5rem;">SIMPLILEARN</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;color:#e2e8f0;margin-bottom:0.4rem;">Machine Learning</div>
+          <div class="text-slate-400 text-sm" style="font-weight:300;">Hands-on certification in supervised/unsupervised learning, model tuning, and deployment pipelines.</div>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl p-7">
+        <div class="cert-card">
+          <div style="font-family:'Syne',sans-serif;font-size:0.7rem;letter-spacing:0.12em;color:#a78bfa;font-weight:700;margin-bottom:0.5rem;">IBM SKILLSBUILD</div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;color:#e2e8f0;margin-bottom:0.4rem;">Mastering the Art of Prompting</div>
+          <div class="text-slate-400 text-sm" style="font-weight:300;">Advanced prompt engineering techniques for large language models and enterprise AI system design.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─── CONTACT ─── -->
+<section id="contact" class="py-28 scroll-reveal">
+  <div class="max-w-4xl mx-auto px-6">
+    <div class="glass rounded-3xl p-10 md:p-16 text-center relative overflow-hidden">
+      <div style="position:absolute;top:-60px;right:-60px;width:240px;height:240px;background:radial-gradient(circle,rgba(45,212,191,0.07),transparent 70%);border-radius:50%;pointer-events:none;"></div>
+      <div style="position:absolute;bottom:-40px;left:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(56,189,248,0.07),transparent 70%);border-radius:50%;pointer-events:none;"></div>
+
+      <div class="section-tag mb-5">Contact</div>
+      <h2 class="section-heading mb-4">Let's Build Something <span class="gradient-text">Great Together</span></h2>
+      <p class="text-slate-400 mb-10 max-w-xl mx-auto" style="font-weight:300;">
+        I'm actively seeking full-time roles, internships, and collaborative projects. Whether you're a recruiter, founder, or fellow engineer — I'd love to connect.
+      </p>
+
+      <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <input type="text" placeholder="Your Name" class="contact-input"/>
+        <input type="email" placeholder="Your Email" class="contact-input"/>
+      </div>
+      <textarea placeholder="Tell me about the opportunity or project..." class="contact-input mb-6"></textarea>
+      <button class="glow-btn w-full justify-center py-3.5 text-sm">Send Message →</button>
+
+      <div class="flex justify-center gap-6 mt-10 flex-wrap">
+        <a href="mailto:mn6224584@gmail.com" class="outline-btn py-2.5 px-5 text-sm">✉ mn6224584@gmail.com</a>
+        <a href="tel:+916363988355" class="outline-btn py-2.5 px-5 text-sm">📞 +91 63639 88355</a>
+        <a href="https://github.com/Manojn476" target="_blank" class="outline-btn py-2.5 px-5 text-sm">⌥ GitHub</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer class="py-10 text-center border-t" style="border-color:rgba(45,212,191,0.08);">
+  <p class="text-slate-500 text-sm" style="font-family:'Syne',sans-serif;letter-spacing:0.05em;">
+    © 2025 Manoj Kumar N · Built with precision & intention
+  </p>
+</footer>
+
+</div><!-- end content-wrap -->
+
+<!-- ─── THREE.JS 3D BACKGROUND ─── -->
+<script>
+(function(){
+  const canvas = document.getElementById('canvas-bg');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x000000, 0);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.set(0, 0, 28);
+
+  // ── Particle field ──
+  const particleCount = 1200;
+  const positions = new Float32Array(particleCount * 3);
+  const colors = new Float32Array(particleCount * 3);
+  const sizes = new Float32Array(particleCount);
+  const c1 = new THREE.Color('#2dd4bf');
+  const c2 = new THREE.Color('#38bdf8');
+  const c3 = new THREE.Color('#0f172a');
+  for(let i = 0; i < particleCount; i++){
+    positions[i*3]   = (Math.random()-0.5)*120;
+    positions[i*3+1] = (Math.random()-0.5)*80;
+    positions[i*3+2] = (Math.random()-0.5)*80;
+    const t = Math.random();
+    const col = t < 0.5 ? c1.clone().lerp(c2, t*2) : c2.clone().lerp(c3, (t-0.5)*2);
+    colors[i*3]   = col.r;
+    colors[i*3+1] = col.g;
+    colors[i*3+2] = col.b;
+    sizes[i] = Math.random() * 1.8 + 0.4;
+  }
+  const pGeo = new THREE.BufferGeometry();
+  pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  pGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  pGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+  const pMat = new THREE.PointsMaterial({
+    size: 0.5, vertexColors: true, transparent: true, opacity: 0.55,
+    sizeAttenuation: true, blending: THREE.AdditiveBlending, depthWrite: false
+  });
+  const particles = new THREE.Points(pGeo, pMat);
+  scene.add(particles);
+
+  // ── Floating geometric meshes ──
+  const matA = new THREE.MeshBasicMaterial({ color: 0x2dd4bf, wireframe: true, transparent: true, opacity: 0.07 });
+  const matB = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.05 });
+
+  const icosa = new THREE.Mesh(new THREE.IcosahedronGeometry(7, 1), matA);
+  icosa.position.set(-14, 4, -10);
+  scene.add(icosa);
+
+  const torus = new THREE.Mesh(new THREE.TorusGeometry(5, 0.8, 8, 32), matB);
+  torus.position.set(14, -3, -8);
+  scene.add(torus);
+
+  const octa = new THREE.Mesh(new THREE.OctahedronGeometry(4, 0), matA.clone());
+  octa.position.set(0, 12, -15);
+  scene.add(octa);
+
+  // ── Connection lines (simplified as a few LineSegments) ──
+  const linePts = [];
+  for(let i=0; i<80; i++){
+    const i3 = Math.floor(Math.random()*particleCount)*3;
+    const j3 = Math.floor(Math.random()*particleCount)*3;
+    linePts.push(new THREE.Vector3(positions[i3], positions[i3+1], positions[i3+2]));
+    linePts.push(new THREE.Vector3(positions[j3], positions[j3+1], positions[j3+2]));
+  }
+  const lineGeo = new THREE.BufferGeometry().setFromPoints(linePts);
+  const lineMat = new THREE.LineBasicMaterial({ color: 0x2dd4bf, transparent: true, opacity: 0.05 });
+  scene.add(new THREE.LineSegments(lineGeo, lineMat));
+
+  // ── Mouse parallax ──
+  let mouseX = 0, mouseY = 0;
+  document.addEventListener('mousemove', e => {
+    mouseX = (e.clientX / window.innerWidth  - 0.5) * 2;
+    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+  });
+
+  // ── Scroll driven camera drift ──
+  let scrollY = 0;
+  window.addEventListener('scroll', () => scrollY = window.scrollY);
+
+  // ── Animate ──
+  const clock = new THREE.Clock();
+  function animate(){
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+
+    particles.rotation.y = t * 0.018;
+    particles.rotation.x = t * 0.009;
+
+    icosa.rotation.x = t * 0.14;
+    icosa.rotation.y = t * 0.09;
+
+    torus.rotation.x = t * 0.10;
+    torus.rotation.z = t * 0.06;
+
+    octa.rotation.y  = t * 0.12;
+    octa.rotation.x  = t * 0.08;
+
+    camera.position.x += (mouseX * 1.5 - camera.position.x) * 0.04;
+    camera.position.y += (-mouseY * 1.0 - camera.position.y) * 0.04;
+    camera.position.z = 28 + scrollY * 0.004;
+    camera.lookAt(scene.position);
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+})();
+</script>
+
+<!-- ─── PHOTO UPLOAD ─── -->
+<script>
+(function(){
+  const circle   = document.getElementById('avatar-circle');
+  const input    = document.getElementById('photo-upload');
+  const img      = document.getElementById('avatar-img');
+  const initials = document.getElementById('avatar-initials');
+  const overlay  = document.getElementById('avatar-overlay');
+
+  circle.addEventListener('mouseenter', () => overlay.style.opacity = '1');
+  circle.addEventListener('mouseleave', () => overlay.style.opacity = '0');
+
+  function loadFile(file) {
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      img.src = ev.target.result;
+      img.style.display = 'block';
+      initials.style.display = 'none';
+      img.style.opacity = '0';
+      img.style.transition = 'opacity 0.5s ease';
+      requestAnimationFrame(() => { img.style.opacity = '1'; });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  input.addEventListener('change', (e) => loadFile(e.target.files[0]));
+  circle.addEventListener('dragover', (e) => { e.preventDefault(); overlay.style.opacity = '1'; });
+  circle.addEventListener('dragleave', () => { overlay.style.opacity = '0'; });
+  circle.addEventListener('drop', (e) => { e.preventDefault(); overlay.style.opacity = '0'; loadFile(e.dataTransfer.files[0]); });
+})();
+</script>
+
+<!-- ─── SCROLL REVEAL ─── -->
+<script>
+const reveals = document.querySelectorAll('.scroll-reveal');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08 });
+reveals.forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
