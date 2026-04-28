@@ -15,6 +15,9 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   deploy:
     environment:
@@ -31,14 +34,19 @@ jobs:
         run: |
           if [ -f "manoj_portfolio.html" ]; then
             cp manoj_portfolio.html index.html
-          elif [ ! -f "index.html" ]; then
-            echo "No index.html or manoj_portfolio.html found!" && exit 1
+            echo "Copied manoj_portfolio.html → index.html"
+          elif [ -f "index.html" ]; then
+            echo "index.html already exists, skipping copy."
+          else
+            echo "ERROR: No manoj_portfolio.html or index.html found."
+            ls -la
+            exit 1
           fi
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: "."
